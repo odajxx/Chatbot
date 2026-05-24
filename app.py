@@ -26,16 +26,56 @@ if prompt := st.chat_input("Ask me something"):
         st.error("Please enter API key")
         st.stop()
 
-timestamp = datetime.now().strftime("%Y-%M-%D :: %H:%M:%S")
+    timestamp = datetime.now().strftime("%Y-%M-%D :: %H:%M:%S")
 
-st.session_state.messages.append(
-    {
-        "role": "user",
-        "content": prompt,
-        "timestamp": timestamp
-    }
-)
+    st.session_state.messages.append(
+        {
+            "role": "user",
+            "content": prompt,
+            "timestamp": timestamp
+        }
+    )
 
-with st.chat_messages("user"):
-    st.markdown(prompt)
-    st.caption(f"{timestamp}")
+    with st.chat_message("user"):
+        st.markdown(prompt)
+        st.caption(f"{timestamp}")
+
+    with st.chat_message("chatbot"):
+        try:
+            contents = []
+            for msg in st.session_state.messages:
+                role = "model" if msg["role"] == "chatbot" else "user"
+                contents.append(
+                    {
+                        "role": role,
+                        "parts": [{"text": msg["content"]}]
+                    }
+                )
+
+            client = genai.Client(api_key=api_key)
+
+            response_stream = client.models.generate_content_stream(
+                model=model_name,
+                contents=contents
+            )
+
+            response_pleaceholder = st_empty()
+            full_response = " "
+
+            for chunk in response_stream:
+                if hassttr(shunk, "text") and chunk.text:
+                    response_placeholder.markdown(full_response + "|")
+
+            response_placeholder.markdown(full_response)
+            response_timpstamp = datetime.now().strftime("%Y-%M-%D :: %H:%M:%S")
+            st.caption(f"*{response_timestamp}")
+
+            st.session_state.messages.append(
+                {
+                    "role": "chatbot",
+                    "content": full_response,
+                    "timestamp": timestamp
+                }
+            )
+        except Exception as e:
+            st.error(f"Error {str(e)}")
