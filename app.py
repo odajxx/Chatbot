@@ -1,5 +1,3 @@
-# AIzaSyACpXKcfK_s1lfMQYO5CKgfDsFkeh1ApjA
-
 import streamlit as st
 from google import genai
 from google.genai import types
@@ -19,6 +17,11 @@ with st.sidebar:
 
 if "messages" not in st.session_state: # Message history. using a datbase is better and more realistic
     st.session_state.messages = []
+
+for message in st.session_state:
+    with st.chat_message(message[0]):
+        st.markdown(message[1])
+        st.caption(f"*{message[2]}*")
 
 if prompt := st.chat_input("Ask me something"):
     # pass
@@ -59,8 +62,8 @@ if prompt := st.chat_input("Ask me something"):
                 contents=contents
             )
 
-            response_pleaceholder = st_empty()
-            full_response = " "
+            response_pleaceholder = st.empty()
+            full_response = ""
 
             for chunk in response_stream:
                 if hassttr(shunk, "text") and chunk.text:
@@ -68,13 +71,13 @@ if prompt := st.chat_input("Ask me something"):
 
             response_placeholder.markdown(full_response)
             response_timpstamp = datetime.now().strftime("%Y-%M-%D :: %H:%M:%S")
-            st.caption(f"*{response_timestamp}")
+            st.caption(f"*{response_timestamp}*")
 
             st.session_state.messages.append(
                 {
                     "role": "chatbot",
                     "content": full_response,
-                    "timestamp": timestamp
+                    "timestamp": response_timestamp
                 }
             )
         except Exception as e:
