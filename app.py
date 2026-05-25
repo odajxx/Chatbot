@@ -24,7 +24,6 @@ for message in st.session_state:
         st.caption(f"*{message[2]}*")
 
 if prompt := st.chat_input("Ask me something"):
-    # pass
     if not api_key:
         st.error("Please enter API key")
         st.stop()
@@ -62,15 +61,15 @@ if prompt := st.chat_input("Ask me something"):
                 contents=contents
             )
 
-            response_pleaceholder = st.empty()
+            response_placeholder = st.empty()
             full_response = ""
 
             for chunk in response_stream:
-                if hassttr(shunk, "text") and chunk.text:
+                if hasattr(chunk, "text") and chunk.text:
                     response_placeholder.markdown(full_response + "|")
 
             response_placeholder.markdown(full_response)
-            response_timpstamp = datetime.now().strftime("%Y-%M-%D :: %H:%M:%S")
+            response_timestamp = datetime.now().strftime("%Y-%M-%D :: %H:%M:%S")
             st.caption(f"*{response_timestamp}*")
 
             st.session_state.messages.append(
